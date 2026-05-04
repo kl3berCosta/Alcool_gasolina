@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.example.exemplosimplesdecompose.R
 import androidx.compose.ui.unit.dp
+import android.content.Context
 import androidx.navigation.NavHostController
 import com.example.exemplosimplesdecompose.data.Coordenadas
 import com.example.exemplosimplesdecompose.data.PostoStorage
@@ -58,63 +59,95 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
         ) {
             // 1. Mudamos de 'postos' para 'postosComp' e chamamos o item de 'posto'
             items(listaDePostos) { posto ->
-                // Cria um formatador para transformar os milissegundos em uma data legível
+                // --- 1. MATEMÁTICA AUTOMÁTICA PARA A LISTA ---
+                val valorAlcool = posto.precoAlcool.toDoubleOrNull() ?: 0.0
+                val valorGasolina = posto.precoGasolina.toDoubleOrNull() ?: 0.0
+
+                // Ele vai no celular verificar se você deixou a chavinha dos 75% ligada
+                val prefs =
+                    LocalContext.current.getSharedPreferences("PostosPrefs", Context.MODE_PRIVATE)
+                val usar75 = prefs.getBoolean("estado_switch_75", false)
+                val taxaRendimento = if (usar75) 0.75 else 0.70
+
+                val recomendacao = if (valorAlcool > 0.0 && valorGasolina > 0.0) {
+                    if (valorAlcool <= (valorGasolina * taxaRendimento)) {
+                        "⛽ Sugestão: ÁLCOOL"
+                    } else {
+                        "⛽ Sugestão: GASOLINA"
+                    }
+                } else {
+                    ""
+                }
+                // ---------------------------------------------
+
+                // Formatação da Data (que você já tinha)
                 val formatoData =
                     java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
                 val dataFormatada = formatoData.format(java.util.Date(posto.dataCadastro))
 
                 Card(
-                    // Modificador unificado (margens e preenchimento corretos)
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 10.dp, vertical = 8.dp),
                     onClick = {
-                        // Lógica para Abrir o Mapa (Mantida intacta)
+                        // A sua lógica do Mapa continua igual aqui dentro!
                         val uriString = if (posto.coordenadas != null) {
                             "geo:${posto.coordenadas.latitude},${posto.coordenadas.longitude}?q=${posto.coordenadas.latitude},${posto.coordenadas.longitude}(${
-                                Uri.encode(
+                                android.net.Uri.encode(
                                     posto.nome
                                 )
                             })"
                         } else {
-                            "geo:0,0?q=${Uri.encode(posto.nome)}"
+                            "geo:0,0?q=${android.net.Uri.encode(posto.nome)}"
                         }
-
-                        val mapIntent = Intent(Intent.ACTION_VIEW, Uri.parse(uriString))
+                        val mapIntent = android.content.Intent(
+                            android.content.Intent.ACTION_VIEW,
+                            android.net.Uri.parse(uriString)
+                        )
                         context.startActivity(mapIntent)
                     }
                 ) {
                     Box(Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            // 1. Nome do Posto
+                            // Nome do Posto
                             Text(
                                 text = posto.nome,
                                 style = MaterialTheme.typography.titleMedium
                             )
 
-                            // 2. Preços gravados dos combustíveis
-                            if (posto.precoAlcool.isNotBlank() && posto.precoGasolina.isNotBlank()) {
+                            // Preços
+                            if (valorAlcool > 0.0 && valorGasolina > 0.0) {
                                 Text(
                                     text = "Álcool: R$ ${posto.precoAlcool} | Gasolina: R$ ${posto.precoGasolina}",
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
+
+                                // 👇 2. AQUI ENTRA O RESULTADO NA TELA 👇
+                                Text(
+                                    text = recomendacao,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    // Adicionando um peso extra para o texto ficar em Negrito e chamar a atenção
+                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary, // Usa a cor principal do seu app
+                                    modifier = Modifier.padding(vertical = 4.dp)
+                                )
                             }
 
-                            // 3. Data da informação
+                            // Data
                             Text(
                                 text = "Atualizado em: $dataFormatada",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = androidx.compose.ui.graphics.Color.Gray,
-                                modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                                modifier = Modifier.padding(top = 2.dp, bottom = 4.dp)
                             )
 
-                            // 4. Localização no mapa (Com internacionalização stringResource)
+                            // Aviso do Mapa
                             if (posto.coordenadas != null) {
                                 Text(
-                                    text = stringResource(id = R.string.toque_mapa),
+                                    text = "Toque para ver no mapa",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = MaterialTheme.colorScheme.secondary
                                 )
                             }
                         }

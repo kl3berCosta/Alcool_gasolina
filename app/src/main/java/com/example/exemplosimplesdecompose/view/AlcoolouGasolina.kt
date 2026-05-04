@@ -1,47 +1,5 @@
 package com.example.exemplosimplesdecompose.view
 
-/*import android.content.Context
-import android.health.connect.datatypes.ExerciseRoute
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.Button
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.example.exemplosimplesdecompose.R
-import com.example.exemplosimplesdecompose.data.PostoStorage
-import com.example.exemplosimplesdecompose.model.Posto
-
- */
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import android.Manifest
@@ -231,6 +189,36 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                     }
                 )
             }
+            // --- CÁLCULO AUTOMÁTICO ---
+// Transforma o texto em número (se estiver vazio ou inválido, vira 0.0)
+            val valorAlcool = alcool.toDoubleOrNull() ?: 0.0
+            val valorGasolina = gasolina.toDoubleOrNull() ?: 0.0
+
+// Aqui está a mágica conectada ao seu Switch!
+            val taxaRendimento = if (checkedState) 0.75 else 0.70
+
+// Faz a conta
+            val resultado = if (valorAlcool > 0.0 && valorGasolina > 0.0) {
+                // Se o preço do álcool for menor ou igual à (gasolina * taxa)
+                if (valorAlcool <= (valorGasolina * taxaRendimento)) {
+                    "⛽ Abasteça com ÁLCOOL"
+                } else {
+                    "⛽ Abasteça com GASOLINA"
+                }
+            } else {
+                "Digite os valores para ver a sugestão"
+            }
+
+// Mostra a resposta na tela
+            Text(
+                text = resultado,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
             // 2. Botão para capturar localização
             Button(
                 onClick = {

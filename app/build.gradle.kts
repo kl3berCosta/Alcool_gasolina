@@ -43,6 +43,7 @@ dependencies {
 
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.benchmark.traceprocessor)
+    implementation(libs.androidx.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -54,6 +55,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -24,21 +25,23 @@ import com.example.exemplosimplesdecompose.R
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.exemplosimplesdecompose.data.Coordenadas
+import com.example.exemplosimplesdecompose.data.PostoStorage
 import com.example.exemplosimplesdecompose.model.Posto
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
     // Contexto necessário para iniciar a Intent do mapa
-    val context = LocalContext.current
 
+    val context = LocalContext.current
+    val storage = remember { PostoStorage(context) }
+    val listaDePostos = storage.buscarPostos()
     // Seus dados mockados
-    val postoSP = Posto("model.Posto SP", Coordenadas(41.40338, 2.17403))
-    val postoNY = Posto("model.Posto em NY", Coordenadas(40.7128, -74.0060))
+
     val postoN = Posto(nomeDoPosto) // Se não passamos coordenadas, assumimos que é null ou vazia
 
     // Esta é a lista que vamos usar de fato
-    val postosComp = listOf(postoN, postoSP, postoNY)
+
 
     Scaffold(
         topBar = {
@@ -54,7 +57,7 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
             contentPadding = PaddingValues(16.dp)
         ) {
             // 1. Mudamos de 'postos' para 'postosComp' e chamamos o item de 'posto'
-            items(postosComp) { posto ->
+            items(listaDePostos) { posto ->
                 Card(
                     onClick = {
                         // 2. Lógica para Abrir o Mapa

@@ -58,40 +58,58 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
         ) {
             // 1. Mudamos de 'postos' para 'postosComp' e chamamos o item de 'posto'
             items(listaDePostos) { posto ->
-                Card(
-                    onClick = {
-                        // 2. Lógica para Abrir o Mapa
+                // Cria um formatador para transformar os milissegundos em uma data legível
+                val formatoData =
+                    java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
+                val dataFormatada = formatoData.format(java.util.Date(posto.dataCadastro))
 
-                        // Cria a URI baseada na existência ou não de coordenadas.
-                        // Se não houver coordenadas, o mapa fará uma pesquisa pelo nome do posto.
+                Card(
+                    // Modificador unificado (margens e preenchimento corretos)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 10.dp, vertical = 8.dp),
+                    onClick = {
+                        // Lógica para Abrir o Mapa (Mantida intacta)
                         val uriString = if (posto.coordenadas != null) {
-                            "geo:${posto.coordenadas.latitude},${posto.coordenadas.longitude}?q=${posto.coordenadas.latitude},${posto.coordenadas.longitude}(${Uri.encode(posto.nome)})"
+                            "geo:${posto.coordenadas.latitude},${posto.coordenadas.longitude}?q=${posto.coordenadas.latitude},${posto.coordenadas.longitude}(${
+                                Uri.encode(
+                                    posto.nome
+                                )
+                            })"
                         } else {
                             "geo:0,0?q=${Uri.encode(posto.nome)}"
                         }
 
-                        // Cria a "intenção" de visualização
                         val mapIntent = Intent(Intent.ACTION_VIEW, Uri.parse(uriString))
-
-                        // Opcional: Se quiser forçar abrir no Google Maps em vez de perguntar ao usuário:
-                        // mapIntent.setPackage("com.google.android.apps.maps")
-
-                        // Dispara a ação para abrir o mapa
                         context.startActivity(mapIntent)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
+                    }
                 ) {
                     Box(Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            // Exibimos o nome do objeto model.Posto
+                            // 1. Nome do Posto
                             Text(
                                 text = posto.nome,
                                 style = MaterialTheme.typography.titleMedium
                             )
 
-                            // Adicionei um detalhe extra: mostrar se ele tem coordenadas
+                            // 2. Preços gravados dos combustíveis
+                            if (posto.precoAlcool.isNotBlank() && posto.precoGasolina.isNotBlank()) {
+                                Text(
+                                    text = "Álcool: R$ ${posto.precoAlcool} | Gasolina: R$ ${posto.precoGasolina}",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(top = 4.dp)
+                                )
+                            }
+
+                            // 3. Data da informação
+                            Text(
+                                text = "Atualizado em: $dataFormatada",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = androidx.compose.ui.graphics.Color.Gray,
+                                modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                            )
+
+                            // 4. Localização no mapa (Com internacionalização stringResource)
                             if (posto.coordenadas != null) {
                                 Text(
                                     text = stringResource(id = R.string.toque_mapa),

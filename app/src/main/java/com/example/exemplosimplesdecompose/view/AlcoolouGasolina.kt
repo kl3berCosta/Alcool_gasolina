@@ -56,20 +56,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -255,24 +259,22 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
             ) {
                 Text(stringResource(id = R.string.salvar_posto))
             }
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Botão exclusivo para ir para a lista sem salvar nada
+            OutlinedButton(
+                onClick = {
+                    // Passamos a palavra "todos" só para preencher a exigência da rota
+                    navController.navigate("ListaDePostos/todos")
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Filled.List, contentDescription = "Ver lista")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Ver Lista de Postos Salvos")
+            }
         }
 
-            // Texto do resultado
-            Text(
-                text = "Vamos Calcular?",
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 16.dp)
-            )
 
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-                horizontalArrangement = Arrangement.End) {
-                FloatingActionButton(
-                    onClick = { navController.navigate("ListaDePostos/$nomeDoPosto")}
-                ) {
-                    Icon(Icons.Filled.Add, "Inserir model.Posto")
-                }
-            }
         }
     }

@@ -152,6 +152,28 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // 🌐 Lógica do Idioma
+            val currentLocales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
+            val isEnglish = currentLocales.toLanguageTags().startsWith("en")
+
+            // Botão posicionado no canto superior direito
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                androidx.compose.material3.TextButton(
+                    onClick = {
+                        val targetLang = if (isEnglish) "pt-BR" else "en"
+                        val localeList = androidx.core.os.LocaleListCompat.forLanguageTags(targetLang)
+                        androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(localeList)
+                    }
+                ) {
+                    Text(if (isEnglish) "🇧🇷 PT" else "🇺🇸 EN")
+                }
+            }
+
+            // 👇 AQUI ABAIXO CONTINUAM OS SEUS CAMPOS DE TEXTO NORMAIS 👇
+            // OutlinedTextField( value = alcool ... )
             // Campo de texto para entrada do preço
             OutlinedTextField(
                 value = alcool,

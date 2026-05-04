@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Fuel App</string>
+    <string name="preco_alcool">Alcohol Price ($)</string>
+    <string name="preco_gasolina">Gasoline Price ($)</string>
+    <string name="nome_posto">Gas Station Name (Optional)</string>
+    <string name="pegar_localizacao">Get My Location</string>
+    <string name="localizacao_capturada">Location Captured!</string>
+    <string name="salvar_posto">Save Gas Station</string>
+    <string name="lista_postos">Gas Stations List</string>
+    <string name="toque_mapa">Tap to view on map</string>
+</resources>

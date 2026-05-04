@@ -33,6 +33,11 @@ class MainActivity : ComponentActivity() {
                     composable("input") { InputView(navController) }
                     composable("mainalcgas") { AlcoolGasolinaPreco(navController) }
 
+                    composable("ListaDePostos/{nomeDoPosto}") { backStackEntry ->
+                        // Pega o nome do posto que foi passado na rota, ou deixa vazio se não vier nada
+                        val nome = backStackEntry.arguments?.getString("nomeDoPosto") ?: ""
+                        ListaDePostos(navController, nome)
+
                 }
             }
         }
@@ -54,3 +59,4 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+    }

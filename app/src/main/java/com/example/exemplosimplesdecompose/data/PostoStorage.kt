@@ -28,17 +28,19 @@ class PostoStorage(context: Context) {
             salvarPostos(lista) // Use o seu método que grava no SharedPreferences/JSON
         }
     }
+    fun excluirPosto(nomeDoPosto: String) {
+        // Pega a lista toda e filtra: mantém apenas os postos que têm o nome DIFERENTE do que queremos excluir
+        val listaAtualizada = buscarPostos().filter { it.nome != nomeDoPosto }
 
+        // Salva essa nova lista (sem o posto excluído) por cima da antiga
+        salvarPostos(listaAtualizada)
+    }
     fun adicionarPosto(posto: Posto) {
         val lista = buscarPostos().toMutableList()
         lista.add(posto)
         salvarPostos(lista)
     }
 
-    fun excluirPosto(id: String) {
-        val lista = buscarPostos().filter { it.id != id }
-        salvarPostos(lista)
-    }
 
     fun atualizarPosto(postoAtualizado: Posto) {
         val lista = buscarPostos().map {

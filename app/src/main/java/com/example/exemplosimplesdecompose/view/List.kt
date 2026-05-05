@@ -124,13 +124,17 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
 
                                 // Botão de Excluir
                                 IconButton(onClick = {
-                                    // 1. Apaga do banco de dados (Você precisará criar esse método no PostoStorage)
-                                    // storage.excluirPosto(posto.nome)
+                                    // 1. Manda o banco de dados apagar o posto
+                                    storage.excluirPosto(posto.nome)
 
-                                    // 2. Atualiza a tela puxando a lista nova
-                                    // listaDePostos = storage.buscarPostos()
+                                    // 2. Atualiza a variável da tela. Como ela é um 'mutableStateOf', a tela pisca e o cartão some na hora!
+                                    listaDePostos = storage.buscarPostos()
                                 }) {
-                                    Icon(Icons.Filled.Delete, contentDescription = "Excluir", tint = MaterialTheme.colorScheme.error)
+                                    Icon(
+                                        imageVector = Icons.Filled.Delete,
+                                        contentDescription = "Excluir",
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
                                 }
                             }
                         }

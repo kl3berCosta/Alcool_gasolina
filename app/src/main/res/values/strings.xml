@@ -4,7 +4,7 @@
     <string name="al_gas">Álcool ou Gasolina</string>
     <string name="preco_alcool">Preço do Álcool (R$)</string>
     <string name="preco_gasolina">Preço da Gasolina (R$)</string>
-    <string name="nome_posto">Nome do Posto (Opcional)</string>
+    <string name="nome_posto">Nome do Posto</string>
     <string name="pegar_localizacao">Pegar Minha Localização</string>
     <string name="localizacao_capturada">Localização Capturada!</string>
     <string name="digitar_valores">Digite os valores para ver sugestão!</string>

@@ -68,6 +68,7 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                         // --- DADOS DO POSTO ---
                         Text(text = posto.nome, style = MaterialTheme.typography.titleMedium)
 
+
                         if (valorAlcool > 0.0 && valorGasolina > 0.0) {
                             Text(
                                 text = stringResource(id = R.string.precos_lista, posto.precoAlcool, posto.precoGasolina),
@@ -90,6 +91,14 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                             modifier = Modifier.padding(top = 2.dp, bottom = 8.dp)
                         )
 
+                        if (posto.localizacao.isNotEmpty()) {
+                            Text(
+                                text = "📍 ${posto.localizacao}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant, // Uma cor um pouco mais neutra
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                        }
                         Divider() // Uma linha sutil separando o texto dos botões
 
                         // --- 3. MUDANÇA AQUI: BARRA DE AÇÕES (MAPA, EDITAR, EXCLUIR) ---
@@ -98,6 +107,7 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+
                             // Botão de Mapa
                             TextButton(onClick = {
                                 val uriString = if (posto.coordenadas != null) {

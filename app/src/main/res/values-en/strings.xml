@@ -3,7 +3,7 @@
     <string name="al_gas">Alcohol or Gasoline</string>
     <string name="preco_alcool">Alcohol Price ($)</string>
     <string name="preco_gasolina">Gasoline Price ($)</string>
-    <string name="nome_posto">Gas Station Name (Optional)</string>
+    <string name="nome_posto">Gas Station Name</string>
     <string name="pegar_localizacao">Get My Location</string>
     <string name="localizacao_capturada">Location Captured!</string>
     <string name="digitar_valores">Enter the values to see a suggestion!</string>

@@ -43,6 +43,7 @@ fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: S
     var nomeDoPosto by remember { mutableStateOf("") }
     var coordenadasCapturadas by remember { mutableStateOf<Coordenadas?>(null) }
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    var localizacaoManual by remember { mutableStateOf("") }
 
     var checkedState by remember {
         mutableStateOf(sharedPreferences.getBoolean("estado_switch_75", true))
@@ -132,6 +133,14 @@ fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: S
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )
+            OutlinedTextField(
+                value = localizacaoManual,
+                onValueChange = { localizacaoManual = it },
+                // Dica: Crie a string 'endereco_posto' no strings.xml depois
+                label = { Text("Digite o endereço ou nome da rua (📍)") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+            )
 
             Row(modifier = Modifier
                 .fillMaxWidth()
@@ -176,7 +185,21 @@ fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: S
             } else {
                 stringResource(id = R.string.digitar_valores)
             }
+            LaunchedEffect(nomePostoParaEditar) {
+                if (nomePostoParaEditar != null) {
+                    // Vai no banco e procura o posto pelo nome que veio da lista
+                    val postoExistente = storage.buscarPostos().find { it.nome == nomePostoParaEditar }
 
+                    postoExistente?.let {
+                        // Preenche os campos da tela com os dados que já estavam salvos
+                        nomeDoPosto = it.nome
+                        alcool = it.precoAlcool
+                        gasolina = it.precoGasolina
+                        localizacaoManual = it.localizacao
+                        coordenadasCapturadas = it.coordenadas
+                    }
+                }
+            }
             Text(
                 text = resultado,
                 style = MaterialTheme.typography.titleMedium,
@@ -221,7 +244,7 @@ fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: S
                             nome = nomeDoPosto,
                             precoAlcool = alcool,
                             precoGasolina = gasolina,
-                            localizacao = "Endereço opcional ou automático",
+                            localizacao = localizacaoManual,
                             coordenadas = coordenadasCapturadas
                         )
 

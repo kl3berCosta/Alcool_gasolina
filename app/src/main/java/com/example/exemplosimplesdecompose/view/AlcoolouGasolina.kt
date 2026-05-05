@@ -206,7 +206,7 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                     "⛽ Abasteça com GASOLINA"
                 }
             } else {
-                "Digite os valores para ver a sugestão"
+                stringResource(id = R.string.digitar_valores)
             }
 
 // Mostra a resposta na tela
@@ -245,9 +245,9 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                 Icon(Icons.Filled.LocationOn, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
                 if (coordenadasCapturadas != null) {
-                    Text("Localização Capturada!")
+                    Text(text = stringResource(id = R.string.localizacao_capturada))
                 } else {
-                    Text("Pegar Minha Localização")
+                    Text(text = stringResource(id = R.string.pegar_localizacao))
                 }
             }
             // Botão de cálculo
@@ -281,7 +281,7 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
             ) {
                 Icon(Icons.Filled.List, contentDescription = "Ver lista")
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Ver Lista de Postos Salvos")
+                Text(text = stringResource(id = R.string.lista_postos))
             }
         }
 

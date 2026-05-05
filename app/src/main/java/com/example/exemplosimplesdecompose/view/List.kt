@@ -1,5 +1,6 @@
 package com.example.exemplosimplesdecompose.view
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
@@ -21,28 +22,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.example.exemplosimplesdecompose.R
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import android.content.Context
 import androidx.navigation.NavHostController
-import com.example.exemplosimplesdecompose.data.Coordenadas
+import com.example.exemplosimplesdecompose.R
 import com.example.exemplosimplesdecompose.data.PostoStorage
-import com.example.exemplosimplesdecompose.model.Posto
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
-    // Contexto necessário para iniciar a Intent do mapa
-
     val context = LocalContext.current
     val storage = remember { PostoStorage(context) }
     val listaDePostos = storage.buscarPostos()
-    // Seus dados mockados
 
-    val postoN = Posto(nomeDoPosto) // Se não passamos coordenadas, assumimos que é null ou vazia
-
-    // Esta é a lista que vamos usar de fato
-
+    // 🚀 OTIMIZAÇÃO: Lemos a configuração dos 75% UMA ÚNICA VEZ antes de montar a lista
+    val prefs = context.getSharedPreferences("PostosPrefs", Context.MODE_PRIVATE)
+    val usar75 = prefs.getBoolean("estado_switch_75", false)
+    val taxaRendimento = if (usar75) 0.75 else 0.70
 
     Scaffold(
         topBar = {
@@ -57,32 +53,23 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                 .padding(innerPadding),
             contentPadding = PaddingValues(16.dp)
         ) {
-            // 1. Mudamos de 'postos' para 'postosComp' e chamamos o item de 'posto'
             items(listaDePostos) { posto ->
-                // --- 1. MATEMÁTICA AUTOMÁTICA PARA A LISTA ---
+                // --- MATEMÁTICA AUTOMÁTICA ---
                 val valorAlcool = posto.precoAlcool.toDoubleOrNull() ?: 0.0
                 val valorGasolina = posto.precoGasolina.toDoubleOrNull() ?: 0.0
 
-                // Ele vai no celular verificar se você deixou a chavinha dos 75% ligada
-                val prefs =
-                    LocalContext.current.getSharedPreferences("PostosPrefs", Context.MODE_PRIVATE)
-                val usar75 = prefs.getBoolean("estado_switch_75", false)
-                val taxaRendimento = if (usar75) 0.75 else 0.70
-
                 val recomendacao = if (valorAlcool > 0.0 && valorGasolina > 0.0) {
                     if (valorAlcool <= (valorGasolina * taxaRendimento)) {
-                        "⛽ Sugestão: ÁLCOOL"
+                        stringResource(id = R.string.sugestao_alcool)
                     } else {
-                        "⛽ Sugestão: GASOLINA"
+                        stringResource(id = R.string.sugestao_gasolina)
                     }
                 } else {
                     ""
                 }
-                // ---------------------------------------------
 
-                // Formatação da Data (que você já tinha)
-                val formatoData =
-                    java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
+                // Formatação da Data
+                val formatoData = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
                 val dataFormatada = formatoData.format(java.util.Date(posto.dataCadastro))
 
                 Card(
@@ -90,20 +77,12 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                         .fillMaxWidth()
                         .padding(horizontal = 10.dp, vertical = 8.dp),
                     onClick = {
-                        // A sua lógica do Mapa continua igual aqui dentro!
                         val uriString = if (posto.coordenadas != null) {
-                            "geo:${posto.coordenadas.latitude},${posto.coordenadas.longitude}?q=${posto.coordenadas.latitude},${posto.coordenadas.longitude}(${
-                                android.net.Uri.encode(
-                                    posto.nome
-                                )
-                            })"
+                            "geo:${posto.coordenadas.latitude},${posto.coordenadas.longitude}?q=${posto.coordenadas.latitude},${posto.coordenadas.longitude}(${Uri.encode(posto.nome)})"
                         } else {
-                            "geo:0,0?q=${android.net.Uri.encode(posto.nome)}"
+                            "geo:0,0?q=${Uri.encode(posto.nome)}"
                         }
-                        val mapIntent = android.content.Intent(
-                            android.content.Intent.ACTION_VIEW,
-                            android.net.Uri.parse(uriString)
-                        )
+                        val mapIntent = Intent(Intent.ACTION_VIEW, Uri.parse(uriString))
                         context.startActivity(mapIntent)
                     }
                 ) {
@@ -115,28 +94,28 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                                 style = MaterialTheme.typography.titleMedium
                             )
 
-                            // Preços
+                            // Preços e Recomendação
                             if (valorAlcool > 0.0 && valorGasolina > 0.0) {
                                 Text(
-                                    text = "Álcool: R$ ${posto.precoAlcool} | Gasolina: R$ ${posto.precoGasolina}",
+                                    // Injetando as variáveis de preço dentro da string!
+                                    text = stringResource(id = R.string.precos_lista, posto.precoAlcool, posto.precoGasolina),
                                     style = MaterialTheme.typography.bodyMedium,
                                     modifier = Modifier.padding(top = 4.dp)
                                 )
 
-                                // 👇 2. AQUI ENTRA O RESULTADO NA TELA 👇
                                 Text(
                                     text = recomendacao,
                                     style = MaterialTheme.typography.bodyMedium,
-                                    // Adicionando um peso extra para o texto ficar em Negrito e chamar a atenção
-                                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary, // Usa a cor principal do seu app
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.padding(vertical = 4.dp)
                                 )
                             }
 
-                            // Data
+                            // Data Atualizada
                             Text(
-                                text = "Atualizado em: $dataFormatada",
+                                // Injetando a data formatada dentro da string!
+                                text = stringResource(id = R.string.atualizado_em, dataFormatada),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = androidx.compose.ui.graphics.Color.Gray,
                                 modifier = Modifier.padding(top = 2.dp, bottom = 4.dp)
@@ -145,7 +124,7 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                             // Aviso do Mapa
                             if (posto.coordenadas != null) {
                                 Text(
-                                    text = "Toque para ver no mapa",
+                                    text = stringResource(id = R.string.toque_mapa),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.secondary
                                 )

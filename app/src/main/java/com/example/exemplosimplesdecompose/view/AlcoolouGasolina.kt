@@ -1,47 +1,19 @@
 package com.example.exemplosimplesdecompose.view
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -49,19 +21,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
-import com.google.android.gms.location.LocationServices
-
-// Lembre-se de verificar se estes 4 pacotes abaixo batem com o nome do seu projeto:
 import com.example.exemplosimplesdecompose.R
 import com.example.exemplosimplesdecompose.data.Coordenadas
 import com.example.exemplosimplesdecompose.data.PostoStorage
 import com.example.exemplosimplesdecompose.model.Posto
+import com.google.android.gms.location.LocationServices
+
 @Composable
-fun AlcoolGasolinaPreco(navController: NavHostController) {
-    // 1. Pegamos o contexto atual para acessar o SharedPreferences
+fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: String? = null) {
     val context = LocalContext.current
     val sharedPreferences = remember {
         context.getSharedPreferences("ConfiguracoesApp", Context.MODE_PRIVATE)
@@ -73,11 +44,24 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
     var coordenadasCapturadas by remember { mutableStateOf<Coordenadas?>(null) }
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    // 2. Lemos o valor salvo ao criar a tela. O padrão é 'true' caso não exista.
     var checkedState by remember {
         mutableStateOf(sharedPreferences.getBoolean("estado_switch_75", true))
     }
 
+    // 1. CARREGA OS DADOS SE FOR EDIÇÃO
+    LaunchedEffect(nomePostoParaEditar) {
+        if (nomePostoParaEditar != null) {
+            val postoExistente = storage.buscarPostos().find { it.nome == nomePostoParaEditar }
+            postoExistente?.let {
+                nomeDoPosto = it.nome
+                alcool = it.precoAlcool
+                gasolina = it.precoGasolina
+                coordenadasCapturadas = it.coordenadas
+            }
+        }
+    }
+
+    // 2. LAUNCHER DE PERMISSÃO (Fechado corretamente)
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -85,7 +69,6 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
         val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
 
         if (fineLocationGranted || coarseLocationGranted) {
-            // Permissão concedida! Vamos pegar a localização
             try {
                 fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                     if (location != null) {
@@ -98,7 +81,7 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
         }
     }
 
-    // A surface container using the 'background' color from the theme
+    // 3. DESENHO DA TELA
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -110,11 +93,9 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 🌐 Lógica do Idioma
             val currentLocales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
             val isEnglish = currentLocales.toLanguageTags().startsWith("en")
 
-            // Botão posicionado no canto superior direito
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
@@ -130,9 +111,6 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                 }
             }
 
-            // 👇 AQUI ABAIXO CONTINUAM OS SEUS CAMPOS DE TEXTO NORMAIS 👇
-            // OutlinedTextField( value = alcool ... )
-            // Campo de texto para entrada do preço
             OutlinedTextField(
                 value = alcool,
                 onValueChange = { alcool = it },
@@ -140,7 +118,6 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
-            // Campo de texto para preço da Gasolina
             OutlinedTextField(
                 value = gasolina,
                 onValueChange = { gasolina = it },
@@ -148,7 +125,6 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
-            // Campo de texto para NOME do model.Posto (Corrigido para KeyboardType.Text)
             OutlinedTextField(
                 value = nomeDoPosto,
                 onValueChange = { nomeDoPosto = it },
@@ -164,16 +140,13 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                 Text(
                     text = "75%",
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 16.dp, end = 16.dp) // Adicionado 'end' para desgrudar do Switch
+                    modifier = Modifier.padding(top = 16.dp, end = 16.dp)
                 )
                 Switch(
                     modifier = Modifier.semantics { contentDescription = "Configuração de 75%" },
                     checked = checkedState,
                     onCheckedChange = { novoEstado ->
-                        // 3. Atualizamos a interface
                         checkedState = novoEstado
-
-                        // 4. Salvamos o novo estado imediatamente no SharedPreferences
                         sharedPreferences.edit()
                             .putBoolean("estado_switch_75", novoEstado)
                             .apply()
@@ -189,27 +162,21 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                     }
                 )
             }
-            // --- CÁLCULO AUTOMÁTICO ---
-// Transforma o texto em número (se estiver vazio ou inválido, vira 0.0)
+
             val valorAlcool = alcool.toDoubleOrNull() ?: 0.0
             val valorGasolina = gasolina.toDoubleOrNull() ?: 0.0
-
-// Aqui está a mágica conectada ao seu Switch!
             val taxaRendimento = if (checkedState) 0.75 else 0.70
 
-// Faz a conta
             val resultado = if (valorAlcool > 0.0 && valorGasolina > 0.0) {
-                // Se o preço do álcool for menor ou igual à (gasolina * taxa)
                 if (valorAlcool <= (valorGasolina * taxaRendimento)) {
-                    stringResource(id = R.string.sugestao_alcool2)
+                    stringResource(id = R.string.sugestao_alcool2) // Confirme se o nome da string está correto aqui!
                 } else {
-                    stringResource(id = R.string.sugestao_gasolina2)
+                    stringResource(id = R.string.sugestao_gasolina2) // Confirme se o nome da string está correto aqui!
                 }
             } else {
                 stringResource(id = R.string.digitar_valores)
             }
 
-// Mostra a resposta na tela
             Text(
                 text = resultado,
                 style = MaterialTheme.typography.titleMedium,
@@ -217,23 +184,19 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = TextAlign.Center
             )
-            // 2. Botão para capturar localização
+
             Button(
                 onClick = {
-                    // Verifica se já temos permissão
                     val hasFineLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-
                     if (hasFineLocation) {
-                        // Se já tem, pega direto
                         fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
                             if (location != null) {
                                 coordenadasCapturadas = Coordenadas(location.latitude, location.longitude)
                             }
                         }
                     } else {
-                        // Se não tem, pede a permissão
                         permissionLauncher.launch(
                             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
                         )
@@ -250,7 +213,7 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                     Text(text = stringResource(id = R.string.pegar_localizacao))
                 }
             }
-            // Botão de cálculo
+
             Button(
                 onClick = {
                     if (nomeDoPosto.isNotEmpty() && alcool.isNotEmpty() && gasolina.isNotEmpty()) {
@@ -259,22 +222,26 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                             precoAlcool = alcool,
                             precoGasolina = gasolina,
                             localizacao = "Endereço opcional ou automático",
-                            coordenadas = coordenadasCapturadas // <-- Passamos a coordenada aqui!
+                            coordenadas = coordenadasCapturadas
                         )
-                        storage.adicionarPosto(novoPosto)
+
+                        if (nomePostoParaEditar != null) {
+                            storage.atualizarPosto(nomePostoParaEditar, novoPosto)
+                        } else {
+                            storage.adicionarPosto(novoPosto)
+                        }
+
                         navController.navigate("ListaDePostos/$nomeDoPosto")
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(id = R.string.salvar_posto))
+                Text(if (nomePostoParaEditar != null) "Atualizar Posto" else stringResource(id = R.string.salvar_posto))
             }
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Botão exclusivo para ir para a lista sem salvar nada
             OutlinedButton(
                 onClick = {
-                    // Passamos a palavra "todos" só para preencher a exigência da rota
                     navController.navigate("ListaDePostos/todos")
                 },
                 modifier = Modifier.fillMaxWidth()
@@ -284,7 +251,5 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
                 Text(text = stringResource(id = R.string.lista_postos))
             }
         }
-
-
-        }
     }
+}

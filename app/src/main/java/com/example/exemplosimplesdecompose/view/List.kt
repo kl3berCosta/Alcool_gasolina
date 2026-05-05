@@ -3,22 +3,16 @@ package com.example.exemplosimplesdecompose.view
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -33,28 +27,24 @@ import com.example.exemplosimplesdecompose.data.PostoStorage
 fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
     val context = LocalContext.current
     val storage = remember { PostoStorage(context) }
-    val listaDePostos = storage.buscarPostos()
 
-    // 🚀 OTIMIZAÇÃO: Lemos a configuração dos 75% UMA ÚNICA VEZ antes de montar a lista
+    // 1. MUDANÇA AQUI: Tornamos a lista "viva". Se removermos um item, a tela atualiza na hora!
+    var listaDePostos by remember { mutableStateOf(storage.buscarPostos()) }
+
     val prefs = context.getSharedPreferences("PostosPrefs", Context.MODE_PRIVATE)
     val usar75 = prefs.getBoolean("estado_switch_75", false)
     val taxaRendimento = if (usar75) 0.75 else 0.70
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(id = R.string.lista_postos)) }
-            )
+            TopAppBar(title = { Text(stringResource(id = R.string.lista_postos)) })
         }
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+            modifier = Modifier.fillMaxSize().padding(innerPadding),
             contentPadding = PaddingValues(16.dp)
         ) {
             items(listaDePostos) { posto ->
-                // --- MATEMÁTICA AUTOMÁTICA ---
                 val valorAlcool = posto.precoAlcool.toDoubleOrNull() ?: 0.0
                 val valorGasolina = posto.precoGasolina.toDoubleOrNull() ?: 0.0
 
@@ -64,70 +54,84 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                     } else {
                         stringResource(id = R.string.sugestao_gasolina)
                     }
-                } else {
-                    ""
-                }
+                } else ""
 
-                // Formatação da Data
                 val formatoData = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
                 val dataFormatada = formatoData.format(java.util.Date(posto.dataCadastro))
 
+                // 2. MUDANÇA AQUI: Removemos o onClick do Card inteiro. As ações agora ficam nos botões.
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp, vertical = 8.dp),
-                    onClick = {
-                        val uriString = if (posto.coordenadas != null) {
-                            "geo:${posto.coordenadas.latitude},${posto.coordenadas.longitude}?q=${posto.coordenadas.latitude},${posto.coordenadas.longitude}(${Uri.encode(posto.nome)})"
-                        } else {
-                            "geo:0,0?q=${Uri.encode(posto.nome)}"
-                        }
-                        val mapIntent = Intent(Intent.ACTION_VIEW, Uri.parse(uriString))
-                        context.startActivity(mapIntent)
-                    }
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
                 ) {
-                    Box(Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            // Nome do Posto
+                    Column(modifier = Modifier.padding(16.dp)) {
+
+                        // --- DADOS DO POSTO ---
+                        Text(text = posto.nome, style = MaterialTheme.typography.titleMedium)
+
+                        if (valorAlcool > 0.0 && valorGasolina > 0.0) {
                             Text(
-                                text = posto.nome,
-                                style = MaterialTheme.typography.titleMedium
+                                text = stringResource(id = R.string.precos_lista, posto.precoAlcool, posto.precoGasolina),
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(top = 4.dp)
                             )
+                            Text(
+                                text = recomendacao,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                        }
 
-                            // Preços e Recomendação
-                            if (valorAlcool > 0.0 && valorGasolina > 0.0) {
-                                Text(
-                                    // Injetando as variáveis de preço dentro da string!
-                                    text = stringResource(id = R.string.precos_lista, posto.precoAlcool, posto.precoGasolina),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(top = 4.dp)
-                                )
+                        Text(
+                            text = stringResource(id = R.string.atualizado_em, dataFormatada),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = androidx.compose.ui.graphics.Color.Gray,
+                            modifier = Modifier.padding(top = 2.dp, bottom = 8.dp)
+                        )
 
-                                Text(
-                                    text = recomendacao,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(vertical = 4.dp)
-                                )
+                        Divider() // Uma linha sutil separando o texto dos botões
+
+                        // --- 3. MUDANÇA AQUI: BARRA DE AÇÕES (MAPA, EDITAR, EXCLUIR) ---
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Botão de Mapa
+                            TextButton(onClick = {
+                                val uriString = if (posto.coordenadas != null) {
+                                    "geo:${posto.coordenadas.latitude},${posto.coordenadas.longitude}?q=${posto.coordenadas.latitude},${posto.coordenadas.longitude}(${Uri.encode(posto.nome)})"
+                                } else {
+                                    "geo:0,0?q=${Uri.encode(posto.nome)}"
+                                }
+                                val mapIntent = Intent(Intent.ACTION_VIEW, Uri.parse(uriString))
+                                context.startActivity(mapIntent)
+                            }) {
+                                Icon(Icons.Filled.Place, contentDescription = "Mapa", modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(4.dp))
+                                Text(text = stringResource(id = R.string.Mapa))
                             }
 
-                            // Data Atualizada
-                            Text(
-                                // Injetando a data formatada dentro da string!
-                                text = stringResource(id = R.string.atualizado_em, dataFormatada),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = androidx.compose.ui.graphics.Color.Gray,
-                                modifier = Modifier.padding(top = 2.dp, bottom = 4.dp)
-                            )
+                            Row {
+                                // Botão de Editar
+                                IconButton(onClick = {
+                                    // Navega para a tela principal passando o nome como parâmetro
+                                    navController.navigate("mainalcgas?nomePosto=${posto.nome}")
+                                }) {
+                                    Icon(Icons.Filled.Edit, contentDescription = "Editar")
+                                }
 
-                            // Aviso do Mapa
-                            if (posto.coordenadas != null) {
-                                Text(
-                                    text = stringResource(id = R.string.toque_mapa),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
+                                // Botão de Excluir
+                                IconButton(onClick = {
+                                    // 1. Apaga do banco de dados (Você precisará criar esse método no PostoStorage)
+                                    // storage.excluirPosto(posto.nome)
+
+                                    // 2. Atualiza a tela puxando a lista nova
+                                    // listaDePostos = storage.buscarPostos()
+                                }) {
+                                    Icon(Icons.Filled.Delete, contentDescription = "Excluir", tint = MaterialTheme.colorScheme.error)
+                                }
                             }
                         }
                     }

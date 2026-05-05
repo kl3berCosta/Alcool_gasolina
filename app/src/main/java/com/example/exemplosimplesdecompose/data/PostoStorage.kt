@@ -20,6 +20,15 @@ class PostoStorage(context: Context) {
         return gson.fromJson(json, type)
     }
 
+    fun atualizarPosto(nomeAntigo: String, postoAtualizado: Posto) {
+        val lista = buscarPostos().toMutableList()
+        val index = lista.indexOfFirst { it.nome == nomeAntigo }
+        if (index != -1) {
+            lista[index] = postoAtualizado
+            salvarPostos(lista) // Use o seu método que grava no SharedPreferences/JSON
+        }
+    }
+
     fun adicionarPosto(posto: Posto) {
         val lista = buscarPostos().toMutableList()
         lista.add(posto)

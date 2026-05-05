@@ -261,7 +261,6 @@ fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: S
             ) {
                 Text(if (nomePostoParaEditar != null) "Atualizar Posto" else stringResource(id = R.string.salvar_posto))
             }
-            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedButton(
                 onClick = {

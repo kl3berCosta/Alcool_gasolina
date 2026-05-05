@@ -29,10 +29,10 @@ class PostoStorage(context: Context) {
         }
     }
     fun excluirPosto(nomeDoPosto: String) {
-        // Pega a lista toda e filtra: mantém apenas os postos que têm o nome DIFERENTE do que queremos excluir
+
         val listaAtualizada = buscarPostos().filter { it.nome != nomeDoPosto }
 
-        // Salva essa nova lista (sem o posto excluído) por cima da antiga
+
         salvarPostos(listaAtualizada)
     }
     fun adicionarPosto(posto: Posto) {

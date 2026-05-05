@@ -12,14 +12,14 @@ data class Posto(
     val dataCadastro: Long = System.currentTimeMillis(),
     val id: String = UUID.randomUUID().toString()
 ) {
-    // 1º Construtor secundário
+
     constructor(nome: String, coordenadas: Coordenadas) : this(
         nome = nome,
         precoAlcool = "", // Adicionando isso, forçamos o Kotlin a ir para o construtor principal!
         coordenadas = coordenadas
     )
 
-    // 2º Construtor secundário
+
     constructor(nome: String) : this(
         nome = nome,
         precoAlcool = "",

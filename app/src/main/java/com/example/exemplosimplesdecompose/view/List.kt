@@ -28,7 +28,6 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
     val context = LocalContext.current
     val storage = remember { PostoStorage(context) }
 
-    // 1. MUDANÇA AQUI: Tornamos a lista "viva". Se removermos um item, a tela atualiza na hora!
     var listaDePostos by remember { mutableStateOf(storage.buscarPostos()) }
 
     val prefs = context.getSharedPreferences("PostosPrefs", Context.MODE_PRIVATE)
@@ -59,15 +58,12 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                 val formatoData = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
                 val dataFormatada = formatoData.format(java.util.Date(posto.dataCadastro))
 
-                // 2. MUDANÇA AQUI: Removemos o onClick do Card inteiro. As ações agora ficam nos botões.
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
 
-                        // --- DADOS DO POSTO ---
                         Text(text = posto.nome, style = MaterialTheme.typography.titleMedium)
-
 
                         if (valorAlcool > 0.0 && valorGasolina > 0.0) {
                             Text(
@@ -95,20 +91,19 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                             Text(
                                 text = "📍 ${posto.localizacao}",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant, // Uma cor um pouco mais neutra
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
                         }
-                        Divider() // Uma linha sutil separando o texto dos botões
 
-                        // --- 3. MUDANÇA AQUI: BARRA DE AÇÕES (MAPA, EDITAR, EXCLUIR) ---
+                        Divider()
+
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
 
-                            // Botão de Mapa
                             TextButton(onClick = {
                                 val uriString = if (posto.coordenadas != null) {
                                     "geo:${posto.coordenadas.latitude},${posto.coordenadas.longitude}?q=${posto.coordenadas.latitude},${posto.coordenadas.longitude}(${Uri.encode(posto.nome)})"
@@ -124,20 +119,14 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                             }
 
                             Row {
-                                // Botão de Editar
                                 IconButton(onClick = {
-                                    // Navega para a tela principal passando o nome como parâmetro
                                     navController.navigate("mainalcgas?nomePosto=${posto.nome}")
                                 }) {
                                     Icon(Icons.Filled.Edit, contentDescription = "Editar")
                                 }
 
-                                // Botão de Excluir
                                 IconButton(onClick = {
-                                    // 1. Manda o banco de dados apagar o posto
                                     storage.excluirPosto(posto.nome)
-
-                                    // 2. Atualiza a variável da tela. Como ela é um 'mutableStateOf', a tela pisca e o cartão some na hora!
                                     listaDePostos = storage.buscarPostos()
                                 }) {
                                     Icon(

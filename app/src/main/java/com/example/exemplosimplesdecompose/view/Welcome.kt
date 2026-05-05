@@ -25,14 +25,10 @@ import kotlinx.coroutines.delay
 @Composable
 fun Welcome(navController: NavHostController) {
 
-    // ⏲️ Lógica do Timer: Executa apenas uma vez quando a tela abre
     LaunchedEffect(Unit) {
-        delay(2000L) // Espera 2000 milissegundos (2 segundos)
+        delay(2000L)
 
-        // Pula para a próxima tela
         navController.navigate("mainalcgas") {
-            // Isso aqui é importante: remove a tela de welcome do "histórico".
-            // Assim, se o usuário apertar "voltar", o app fecha em vez de voltar pro Welcome.
             popUpTo("welcome") { inclusive = true }
         }
     }
@@ -42,7 +38,6 @@ fun Welcome(navController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // 1. A Foto Inicial (Altere o nome 'logo_app' para o nome da sua foto no drawable)
         Image(
             painter = painterResource(id = R.drawable.posto_de_gasolina),
             contentDescription = "Logo do Posto",
@@ -51,9 +46,8 @@ fun Welcome(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 2. A Mensagem de Boas-Vindas personalizada
         Text(
-            text = stringResource(id = R.string.al_gas), // Altere sua mensagem aqui
+            text = stringResource(id = R.string.al_gas),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary

@@ -49,7 +49,6 @@ fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: S
         mutableStateOf(sharedPreferences.getBoolean("estado_switch_75", true))
     }
 
-    // 1. CARREGA OS DADOS SE FOR EDIÇÃO
     LaunchedEffect(nomePostoParaEditar) {
         if (nomePostoParaEditar != null) {
             val postoExistente = storage.buscarPostos().find { it.nome == nomePostoParaEditar }
@@ -62,7 +61,6 @@ fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: S
         }
     }
 
-    // 2. LAUNCHER DE PERMISSÃO (Fechado corretamente)
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -82,7 +80,6 @@ fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: S
         }
     }
 
-    // 3. DESENHO DA TELA
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -136,7 +133,6 @@ fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: S
             OutlinedTextField(
                 value = localizacaoManual,
                 onValueChange = { localizacaoManual = it },
-                // Dica: Crie a string 'endereco_posto' no strings.xml depois
                 label = { Text(stringResource(id = R.string.digite_localização)) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
@@ -178,20 +174,18 @@ fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: S
 
             val resultado = if (valorAlcool > 0.0 && valorGasolina > 0.0) {
                 if (valorAlcool <= (valorGasolina * taxaRendimento)) {
-                    stringResource(id = R.string.sugestao_alcool2) // Confirme se o nome da string está correto aqui!
+                    stringResource(id = R.string.sugestao_alcool2)
                 } else {
-                    stringResource(id = R.string.sugestao_gasolina2) // Confirme se o nome da string está correto aqui!
+                    stringResource(id = R.string.sugestao_gasolina2)
                 }
             } else {
                 stringResource(id = R.string.digitar_valores)
             }
             LaunchedEffect(nomePostoParaEditar) {
                 if (nomePostoParaEditar != null) {
-                    // Vai no banco e procura o posto pelo nome que veio da lista
                     val postoExistente = storage.buscarPostos().find { it.nome == nomePostoParaEditar }
 
                     postoExistente?.let {
-                        // Preenche os campos da tela com os dados que já estavam salvos
                         nomeDoPosto = it.nome
                         alcool = it.precoAlcool
                         gasolina = it.precoGasolina

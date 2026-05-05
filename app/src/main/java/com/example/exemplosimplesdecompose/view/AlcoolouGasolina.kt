@@ -201,9 +201,9 @@ fun AlcoolGasolinaPreco(navController: NavHostController) {
             val resultado = if (valorAlcool > 0.0 && valorGasolina > 0.0) {
                 // Se o preço do álcool for menor ou igual à (gasolina * taxa)
                 if (valorAlcool <= (valorGasolina * taxaRendimento)) {
-                    "⛽ Abasteça com ÁLCOOL"
+                    stringResource(id = R.string.sugestao_alcool2)
                 } else {
-                    "⛽ Abasteça com GASOLINA"
+                    stringResource(id = R.string.sugestao_gasolina2)
                 }
             } else {
                 stringResource(id = R.string.digitar_valores)

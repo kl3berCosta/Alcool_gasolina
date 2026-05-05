@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Fuel App</string>
+    <string name="al_gas">Alcohol or Gasoline</string>
     <string name="preco_alcool">Alcohol Price ($)</string>
     <string name="preco_gasolina">Gasoline Price ($)</string>
     <string name="nome_posto">Gas Station Name (Optional)</string>
@@ -11,7 +12,11 @@
     <string name="toque_mapa">Tap to view on map</string>
 
     <string name="sugestao_alcool">⛽ Suggestion: ETHANOL</string>
+    <string name="sugestao_alcool2">⛽ Fill up with ETHANOL</string>
     <string name="sugestao_gasolina">⛽ Suggestion: GASOLINE</string>
+    <string name="sugestao_gasolina2">⛽ Fill up with GASOLINE</string>
     <string name="precos_lista">Ethanol: R$ %1$s | Gasoline: R$ %2$s</string>
     <string name="atualizado_em">Updated at: %1$s</string>
+    <string name="boas_vindas">The best fuel choice</string>
+
 </resources>

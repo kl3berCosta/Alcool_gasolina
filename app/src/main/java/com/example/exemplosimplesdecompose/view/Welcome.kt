@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -52,14 +53,14 @@ fun Welcome(navController: NavHostController) {
 
         // 2. A Mensagem de Boas-Vindas personalizada
         Text(
-            text = "Álcool ou Gasolina", // Altere sua mensagem aqui
+            text = stringResource(id = R.string.al_gas), // Altere sua mensagem aqui
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
 
         Text(
-            text = "A melhor escolha de combustível",
+            text = stringResource(id = R.string.boas_vindas),
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.secondary
         )

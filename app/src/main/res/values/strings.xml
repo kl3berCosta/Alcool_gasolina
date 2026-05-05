@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">App Combustível</string>
 
+    <string name="al_gas">Álcool ou Gasolina</string>
     <string name="preco_alcool">Preço do Álcool (R$)</string>
     <string name="preco_gasolina">Preço da Gasolina (R$)</string>
     <string name="nome_posto">Nome do Posto (Opcional)</string>
@@ -12,7 +13,10 @@
     <string name="toque_mapa">Toque para ver no mapa</string>
 
     <string name="sugestao_alcool">⛽ Sugestão: ÁLCOOL</string>
+    <string name="sugestao_alcool2">⛽ Abasteça com ÁLCOOL</string>
     <string name="sugestao_gasolina">⛽ Sugestão: GASOLINA</string>
+    <string name="sugestao_gasolina2">⛽ Abasteça com GASOLINA</string>
     <string name="precos_lista">Álcool: R$ %1$s | Gasolina: R$ %2$s</string>
     <string name="atualizado_em">Atualizado em: %1$s</string>
+    <string name="boas_vindas">A melhor escolha de combustível</string>
 </resources>

@@ -137,7 +137,7 @@ fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: S
                 value = localizacaoManual,
                 onValueChange = { localizacaoManual = it },
                 // Dica: Crie a string 'endereco_posto' no strings.xml depois
-                label = { Text("Digite o endereço ou nome da rua (📍)") },
+                label = { Text(stringResource(id = R.string.digite_localização)) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
             )

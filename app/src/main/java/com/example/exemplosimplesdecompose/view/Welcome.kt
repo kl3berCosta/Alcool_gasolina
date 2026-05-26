@@ -26,37 +26,54 @@ import kotlinx.coroutines.delay
 fun Welcome(navController: NavHostController) {
 
     LaunchedEffect(Unit) {
+
         delay(2000L)
 
         navController.navigate("mainalcgas") {
-            popUpTo("welcome") { inclusive = true }
+            popUpTo("welcome") {
+                inclusive = true
+            }
         }
     }
 
     Column(
         modifier = Modifier.fillMaxSize(),
+
         horizontalAlignment = Alignment.CenterHorizontally,
+
         verticalArrangement = Arrangement.Center
     ) {
+
         Image(
-            painter = painterResource(id = R.drawable.posto_de_gasolina),
-            contentDescription = "Logo do Posto",
+            painter = painterResource(
+                id = R.drawable.posto_de_gasolina
+            ),
+
+            contentDescription = "Logo do aplicativo de postos",
+
             modifier = Modifier.size(180.dp)
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
         Text(
             text = stringResource(id = R.string.al_gas),
+
             fontSize = 28.sp,
+
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         Text(
             text = stringResource(id = R.string.boas_vindas),
+
             fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.secondary
+
+            color = MaterialTheme.colorScheme.onBackground
         )
     }
 }

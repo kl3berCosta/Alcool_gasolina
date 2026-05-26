@@ -32,208 +32,413 @@ import com.example.exemplosimplesdecompose.model.Posto
 import com.google.android.gms.location.LocationServices
 
 @Composable
-fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: String? = null) {
+fun AlcoolGasolinaPreco(
+    navController: NavHostController,
+    nomePostoParaEditar: String? = null
+) {
+
     val context = LocalContext.current
+
     val sharedPreferences = remember {
-        context.getSharedPreferences("ConfiguracoesApp", Context.MODE_PRIVATE)
+        context.getSharedPreferences(
+            "ConfiguracoesApp",
+            Context.MODE_PRIVATE
+        )
     }
-    val storage = remember { PostoStorage(context) }
+
+    val storage = remember {
+        PostoStorage(context)
+    }
+
     var alcool by remember { mutableStateOf("") }
+
     var gasolina by remember { mutableStateOf("") }
+
     var nomeDoPosto by remember { mutableStateOf("") }
-    var coordenadasCapturadas by remember { mutableStateOf<Coordenadas?>(null) }
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    var localizacaoManual by remember { mutableStateOf("") }
+
+    var coordenadasCapturadas by remember {
+        mutableStateOf<Coordenadas?>(null)
+    }
+
+    var localizacaoManual by remember {
+        mutableStateOf("")
+    }
+
+    val fusedLocationClient = remember {
+        LocationServices.getFusedLocationProviderClient(context)
+    }
 
     var checkedState by remember {
-        mutableStateOf(sharedPreferences.getBoolean("estado_switch_75", true))
+
+        mutableStateOf(
+            sharedPreferences.getBoolean(
+                "estado_switch_75",
+                true
+            )
+        )
     }
 
     LaunchedEffect(nomePostoParaEditar) {
+
         if (nomePostoParaEditar != null) {
-            val postoExistente = storage.buscarPostos().find { it.nome == nomePostoParaEditar }
+
+            val postoExistente =
+                storage.buscarPostos().find {
+                    it.nome == nomePostoParaEditar
+                }
+
             postoExistente?.let {
+
                 nomeDoPosto = it.nome
                 alcool = it.precoAlcool
                 gasolina = it.precoGasolina
+                localizacaoManual = it.localizacao
                 coordenadasCapturadas = it.coordenadas
             }
         }
     }
 
-    val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val fineLocationGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
-        val coarseLocationGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
 
-        if (fineLocationGranted || coarseLocationGranted) {
-            try {
-                fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-                    if (location != null) {
-                        coordenadasCapturadas = Coordenadas(location.latitude, location.longitude)
-                    }
+            val fineLocationGranted =
+                permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+
+            val coarseLocationGranted =
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: false
+
+            if (fineLocationGranted || coarseLocationGranted) {
+
+                try {
+
+                    fusedLocationClient.lastLocation
+                        .addOnSuccessListener { location: Location? ->
+
+                            if (location != null) {
+
+                                coordenadasCapturadas =
+                                    Coordenadas(
+                                        location.latitude,
+                                        location.longitude
+                                    )
+                            }
+                        }
+
+                } catch (e: SecurityException) {
+
+                    e.printStackTrace()
                 }
-            } catch (e: SecurityException) {
-                e.printStackTrace()
             }
         }
-    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+
         Column(
             modifier = Modifier
                 .wrapContentSize(Alignment.Center)
                 .padding(16.dp),
+
             verticalArrangement = Arrangement.spacedBy(16.dp),
+
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val currentLocales = androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
-            val isEnglish = currentLocales.toLanguageTags().startsWith("en")
+
+            val currentLocales =
+                androidx.appcompat.app.AppCompatDelegate.getApplicationLocales()
+
+            val isEnglish =
+                currentLocales.toLanguageTags().startsWith("en")
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
+
                 horizontalArrangement = Arrangement.End
             ) {
-                androidx.compose.material3.TextButton(
+
+                TextButton(
+
+                    modifier = Modifier.semantics {
+                        contentDescription = "Alterar idioma"
+                    },
+
                     onClick = {
-                        val targetLang = if (isEnglish) "pt-BR" else "en"
-                        val localeList = androidx.core.os.LocaleListCompat.forLanguageTags(targetLang)
-                        androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(localeList)
+
+                        val targetLang =
+                            if (isEnglish) "pt-BR" else "en"
+
+                        val localeList =
+                            androidx.core.os.LocaleListCompat
+                                .forLanguageTags(targetLang)
+
+                        androidx.appcompat.app.AppCompatDelegate
+                            .setApplicationLocales(localeList)
                     }
+
                 ) {
-                    Text(if (isEnglish) "🇧🇷 PT" else "🇺🇸 EN")
+
+                    Text(
+                        if (isEnglish) "🇧🇷 PT" else "🇺🇸 EN"
+                    )
                 }
             }
 
             OutlinedTextField(
                 value = alcool,
-                onValueChange = { alcool = it },
-                label = { Text(stringResource(id = R.string.preco_alcool)) },
+
+                onValueChange = {
+                    alcool = it
+                },
+
+                label = {
+                    Text(stringResource(id = R.string.preco_alcool))
+                },
+
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-            OutlinedTextField(
-                value = gasolina,
-                onValueChange = { gasolina = it },
-                label = { Text(stringResource(id = R.string.preco_gasolina)) },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-            )
-            OutlinedTextField(
-                value = nomeDoPosto,
-                onValueChange = { nomeDoPosto = it },
-                label = { Text(stringResource(id = R.string.nome_posto)) },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-            )
-            OutlinedTextField(
-                value = localizacaoManual,
-                onValueChange = { localizacaoManual = it },
-                label = { Text(stringResource(id = R.string.digite_localização)) },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
+
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                )
             )
 
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-                horizontalArrangement = Arrangement.Start) {
+            OutlinedTextField(
+                value = gasolina,
+
+                onValueChange = {
+                    gasolina = it
+                },
+
+                label = {
+                    Text(stringResource(id = R.string.preco_gasolina))
+                },
+
+                modifier = Modifier.fillMaxWidth(),
+
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                )
+            )
+
+            OutlinedTextField(
+                value = nomeDoPosto,
+
+                onValueChange = {
+                    nomeDoPosto = it
+                },
+
+                label = {
+                    Text(stringResource(id = R.string.nome_posto))
+                },
+
+                modifier = Modifier.fillMaxWidth(),
+
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text
+                )
+            )
+
+            OutlinedTextField(
+                value = localizacaoManual,
+
+                onValueChange = {
+                    localizacaoManual = it
+                },
+
+                label = {
+                    Text(stringResource(id = R.string.digite_localização))
+                },
+
+                modifier = Modifier.fillMaxWidth(),
+
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text
+                )
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+
+                horizontalArrangement = Arrangement.Start
+            ) {
+
                 Text(
                     text = "75%",
+
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 16.dp, end = 16.dp)
+
+                    color = MaterialTheme.colorScheme.onBackground,
+
+                    modifier = Modifier.padding(
+                        top = 16.dp,
+                        end = 16.dp
+                    )
                 )
+
                 Switch(
-                    modifier = Modifier.semantics { contentDescription = "Configuração de 75%" },
+
+                    modifier = Modifier.semantics {
+                        contentDescription = "Configuração de 75%"
+                    },
+
                     checked = checkedState,
+
                     onCheckedChange = { novoEstado ->
+
                         checkedState = novoEstado
+
                         sharedPreferences.edit()
-                            .putBoolean("estado_switch_75", novoEstado)
+                            .putBoolean(
+                                "estado_switch_75",
+                                novoEstado
+                            )
                             .apply()
                     },
+
                     thumbContent = {
+
                         if (checkedState) {
+
                             Icon(
                                 imageVector = Icons.Filled.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(SwitchDefaults.IconSize),
+
+                                contentDescription = "Ativado",
+
+                                modifier = Modifier.size(
+                                    SwitchDefaults.IconSize
+                                )
                             )
                         }
                     }
                 )
             }
 
-            val valorAlcool = alcool.toDoubleOrNull() ?: 0.0
-            val valorGasolina = gasolina.toDoubleOrNull() ?: 0.0
-            val taxaRendimento = if (checkedState) 0.75 else 0.70
+            val valorAlcool =
+                alcool.toDoubleOrNull() ?: 0.0
 
-            val resultado = if (valorAlcool > 0.0 && valorGasolina > 0.0) {
-                if (valorAlcool <= (valorGasolina * taxaRendimento)) {
-                    stringResource(id = R.string.sugestao_alcool2)
-                } else {
-                    stringResource(id = R.string.sugestao_gasolina2)
-                }
-            } else {
-                stringResource(id = R.string.digitar_valores)
-            }
-            LaunchedEffect(nomePostoParaEditar) {
-                if (nomePostoParaEditar != null) {
-                    val postoExistente = storage.buscarPostos().find { it.nome == nomePostoParaEditar }
+            val valorGasolina =
+                gasolina.toDoubleOrNull() ?: 0.0
 
-                    postoExistente?.let {
-                        nomeDoPosto = it.nome
-                        alcool = it.precoAlcool
-                        gasolina = it.precoGasolina
-                        localizacaoManual = it.localizacao
-                        coordenadasCapturadas = it.coordenadas
+            val taxaRendimento =
+                if (checkedState) 0.75 else 0.70
+
+            val resultado =
+                if (valorAlcool > 0.0 && valorGasolina > 0.0) {
+
+                    if (valorAlcool <= (valorGasolina * taxaRendimento)) {
+
+                        stringResource(id = R.string.sugestao_alcool2)
+
+                    } else {
+
+                        stringResource(id = R.string.sugestao_gasolina2)
                     }
+
+                } else {
+
+                    stringResource(id = R.string.digitar_valores)
                 }
-            }
+
             Text(
                 text = resultado,
+
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
+
+                color = MaterialTheme.colorScheme.onBackground,
+
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
+
                 textAlign = TextAlign.Center
             )
 
             Button(
+
                 onClick = {
-                    val hasFineLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+                    val hasFineLocation =
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.ACCESS_FINE_LOCATION
+                        ) == PackageManager.PERMISSION_GRANTED
+
                     if (hasFineLocation) {
-                        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
-                            if (location != null) {
-                                coordenadasCapturadas = Coordenadas(location.latitude, location.longitude)
+
+                        fusedLocationClient.lastLocation
+                            .addOnSuccessListener { location: Location? ->
+
+                                if (location != null) {
+
+                                    coordenadasCapturadas =
+                                        Coordenadas(
+                                            location.latitude,
+                                            location.longitude
+                                        )
+                                }
                             }
-                        }
+
                     } else {
+
                         permissionLauncher.launch(
-                            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            )
                         )
                     }
                 },
+
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary
+                )
             ) {
-                Icon(Icons.Filled.LocationOn, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
+
+                Icon(
+                    Icons.Filled.LocationOn,
+
+                    contentDescription = "Capturar localização"
+                )
+
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+
                 if (coordenadasCapturadas != null) {
-                    Text(text = stringResource(id = R.string.localizacao_capturada))
+
+                    Text(
+                        text = stringResource(
+                            id = R.string.localizacao_capturada
+                        )
+                    )
+
                 } else {
-                    Text(text = stringResource(id = R.string.pegar_localizacao))
+
+                    Text(
+                        text = stringResource(
+                            id = R.string.pegar_localizacao
+                        )
+                    )
                 }
             }
 
             Button(
+
                 onClick = {
-                    if (nomeDoPosto.isNotEmpty() && alcool.isNotEmpty() && gasolina.isNotEmpty()) {
+
+                    if (
+                        nomeDoPosto.isNotEmpty() &&
+                        alcool.isNotEmpty() &&
+                        gasolina.isNotEmpty()
+                    ) {
+
                         val novoPosto = Posto(
                             nome = nomeDoPosto,
                             precoAlcool = alcool,
@@ -243,28 +448,58 @@ fun AlcoolGasolinaPreco(navController: NavHostController, nomePostoParaEditar: S
                         )
 
                         if (nomePostoParaEditar != null) {
-                            storage.atualizarPosto(nomePostoParaEditar, novoPosto)
+
+                            storage.atualizarPosto(
+                                nomePostoParaEditar,
+                                novoPosto
+                            )
+
                         } else {
+
                             storage.adicionarPosto(novoPosto)
                         }
 
-                        navController.navigate("ListaDePostos/$nomeDoPosto")
+                        navController.navigate(
+                            "ListaDePostos/$nomeDoPosto"
+                        )
                     }
                 },
+
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(if (nomePostoParaEditar != null) "Atualizar Posto" else stringResource(id = R.string.salvar_posto))
+
+                Text(
+                    if (nomePostoParaEditar != null)
+                        "Atualizar Posto"
+                    else
+                        stringResource(id = R.string.salvar_posto)
+                )
             }
 
             OutlinedButton(
+
                 onClick = {
                     navController.navigate("ListaDePostos/todos")
                 },
+
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Filled.List, contentDescription = "Ver lista")
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = stringResource(id = R.string.lista_postos))
+
+                Icon(
+                    Icons.Filled.List,
+
+                    contentDescription = "Abrir lista de postos"
+                )
+
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+
+                Text(
+                    text = stringResource(
+                        id = R.string.lista_postos
+                    )
+                )
             }
         }
     }

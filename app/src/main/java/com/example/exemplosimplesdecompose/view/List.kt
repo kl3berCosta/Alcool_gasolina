@@ -229,7 +229,6 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                                 )
                             }
 
-
                             Row {
 
                                 IconButton(

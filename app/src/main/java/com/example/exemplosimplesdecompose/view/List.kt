@@ -223,6 +223,7 @@ fun ListaDePostos(navController: NavHostController, nomeDoPosto: String) {
                                     modifier = Modifier.width(4.dp)
                                 )
 
+
                                 Text(
                                     text = stringResource(id = R.string.Mapa),
                                     color = MaterialTheme.colorScheme.onSurface

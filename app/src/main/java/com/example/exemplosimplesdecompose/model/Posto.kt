@@ -15,7 +15,7 @@ data class Posto(
 
     constructor(nome: String, coordenadas: Coordenadas) : this(
         nome = nome,
-        precoAlcool = "", // Adicionando isso, forçamos o Kotlin a ir para o construtor principal!
+        precoAlcool = "",
         coordenadas = coordenadas
     )
 
